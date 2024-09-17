@@ -1,0 +1,254 @@
+{# con extends esta trayendo un archivo de la ruta, osea hereda del arch #}
+{# symf asume que hay code que puede ser comun en todos los templates, seria tedioso hacer ese code por cada templ #}
+{# por eso solo lo hacemos una ves en base y lo replicamos en las demas con "extends" en las otras interfaces #}
+{% extends 'base.html.twig' %}
+{#* https://twig.symfony.com/ #}
+{#* https://github.com/Diiego1500/frikyland/ #}
+{# !pendiente: si el rol esta autenticado que muestre el form de registro, si no que muestre el registrate o iniciar sesion #}
+
+
+	{# es importante que las sentencias bloque tengan un inicio y un final #}
+	{% block title %}{# Aqui no nos muestra el title de la base si no el de este ctrl xq estamos sobreescr los datos #}
+	{# con "parent" traemos el code o contenido de la base y tmb podemos poner otra cosa, por eso ponemos "frikyland" #}
+	{{parent()}}
+- Home
+{% endblock %}
+	{% block body %}
+	{{parent()}}
+		<style>
+.example-wrapper {
+	margin: 1em auto;
+	max-width: 800px;
+	width: 95%;
+	font: 18px / 1.5 sans-serif;
+}
+.example-wrapper code {
+	background: #F5F5F5;
+	padding: 2px 6px;
+}
+	</style>
+		<div class="container my-2"> {% if app.user %}
+			<h4 class="my-3 alert alert-warning border">🤓 Bienvenido a Frikyland,
+				<i>{{app.user.email | capitalize}}</i>
+			</h4>
+			{%endif%}
+			<div class="row">
+				<div class="col-md-8 my-2">
+					<div class="p-2 border bg-white">
+						<div id="accordion" class="p-1 my-2">
+							<div class="card">
+								<div class="card-header" id="headingOne">
+									<h5 class="mb-0">
+										<button class="btn btn-link" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+											Publica algo nuevo
+										</button>
+									</h5>
+								</div>
+								<!--                    <div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion" style="background-color: #EFFFFD">-->
+								{% if is_granted('IS_AUTHENTICATED_REMEMBERED') %}
+									<div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion" style="background-color: #DAF1F9">
+										{{ form_start(form) }}
+										<div class="row p-2">
+											<div class="col-md-6 my-2">
+												{{ form_widget(form.title, {attr:{'placeholder':'Titulo', 'class':'form-control'}}) }}
+											</div>
+											<div class="col-md-6 my-2">
+												{{ form_widget(form.type, {attr:{'class':'form-control'}}) }}
+											</div>
+											<div class="col-md-12 my-2">
+												{{ form_widget(form.description, {attr:{'class':'form-control', 'placeholder': '¿Qué quieres contar?'}}) }}
+											</div>
+											<div class="col-md-12 text-center">
+												{{ form_widget(form.file, {attr:{'class':'form-control my-2'}}) }}
+												{#                                            {{ form_widget(form.Guardar, {attr:{'class':'my-2 btn btn-success', 'value':'Guardar'}}) }}#}
+											</div>
+
+										</div>
+										{{ form_end(form) }}
+
+									</div>
+								{% else %}
+									<div id="collapseOne" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+										<div class="alert alert-dark my-4 border m-3">
+											Si deseas publicar, por favor
+											<a href="#">Registrate</a>
+											o
+											<a href="#">inicia sesión</a>
+										</div>
+									</div>
+								{% endif %}
+
+
+							</div>
+						</div>
+
+						{% for post in posts %}
+							{% if post.file == null %}
+								{% set  first_row = 'col-md-12' %}
+								{% set second_row = 'd-none' %}
+							{% else %}
+								{% set  first_row = 'col-md-9' %}
+								{% set  second_row = 'col-md-3' %}
+							{% endif %}
+							<div class="container">
+								<div class="row border custom-shadow">
+									<div class=" {{ first_row }}">
+										<div class=" my-2 px-1 py-2">
+
+											<h4>
+												<a href="{{ path('postDetails', {id: post.id, url: post.url}) }}">
+													{{ post.title }}
+												</a>
+											</h4>
+
+											{#                                        <p>Por <a href="{{path('app_user', {id:post.user_id})}}">{{ post.user_username }}</a> el {{ post.creationdate | date }}</p>#}
+											<p>Fecha de publicación:
+												{{ post.creation_date | date }}</p>
+											<div
+												class="my-2">{#                                            <span class="alert-success py-1 px-5">{{ post.type }}</span>#}
+											</div>
+											<div>
+												{{ post.description }}
+											</div>
+
+										</div>
+									</div>
+
+									<div class="{{ second_row }} my-auto">
+										{% if post.file != null %}
+											<img src="{{ asset('uploads/files/' ~ post.file) }}" alt="Not found" width="100%">
+										{% endif %}
+									</div>
+
+								</div>
+							</div>
+							<hr>
+						{% else %}
+							<div class="alert alert-warning">
+								<Strong>NO hay ningún post, sé el primero!</Strong>
+							</div>
+						{% endfor %}
+						<div class="navigation">
+							{{ knp_pagination_render(pagination) }}
+						</div>
+						{# display navigation #}
+						<div {# * instalamos el paginador con composer en este link: https://github.com/KnpLabs/KnpPaginatorBundle #} class="navigation">{# {{ knp_pagination_render(posts) }} #}
+							{# luego tenemos que ver que salga la carpeta del paginador en vendor y que salga en congig/bundles/ #}
+						</div>
+						{#                    <div class="navigation">#}
+					{#                        {{ knp_pagination_render(posts, 'custom/custom_pagination.html.twig') }}#}
+						{#                        #}
+						{#                        {{ knp_pagination_render(posts) }}#}
+						{#                    </div>#}
+					</div>
+				</div>
+				<div class="col-md-4 my-2">
+					<div class="p-1 border bg-white">
+						<div class="my-2 border px-1 py-2 alert alert-info">
+							<h5 class="my-3 text-center">⚠️ Importante:</h5>
+							<ul>
+								<li>🙏 No hackees mi sitio porfi</li>
+								<li>🤝 Sé respetuoso</li>
+								<li>🤓 Aporta contenido Friki, nerd</li>
+								<li>☝️ Sólo 1 comentario por POST</li>
+								<li>🧑‍💻 Puedes usar HTML en los comentarios y publicaciones (Somos frikis despues de todo)</li>
+								<li>👩‍💻 En ese sitio usamos Bootstrap 4 (Para que estilices esos POSTS)</li>
+								<li>🕵️ Tu contraseña está encriptada, (Ni yo puedo verla, por desgracia)</li>
+								<li>🎙 El podcast, libro, tutoriales, se subirán poco a poco</li>
+								<li>💰 Necesito comer, hay (o habrá) anuncios.</li>
+							</ul>
+
+						</div>
+						<div class="my-2 border px-1 py-2 alert alert-info">
+							<ul>
+								<li>No soy muy interesante, pero puedes seguirme en:</li>
+							</ul>
+							<div class="text-center">
+								<h3>
+									<a href="https://www.instagram.com/dfbastidas/" target="_blank">
+										<i class="fa-brands fa-instagram"></i>
+									</a>
+									|
+									<a href="https://www.youtube.com/channel/UC3OX29cmNHkj8qp6JUlNpgA" target="_blank">
+										<i class="fa-brands fa-youtube"></i>
+									</a>
+								</h3>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	{% endblock %}
+
+	{# Este es el doc que se renderiza en el controlador. Se puede acceder a vars, xq desde el ctrl podemos pasarle vals al template, #}
+	{# en este caso symfony crea una var llamada controller_name, y su val es 'PostController', esta var esta en el ctrl, se pueden pasar #}
+	{# cualquier tipo de datos de vars desde el ctrl a la template. #}
+	{# <div class="example-wrapper"> <h1> #}
+	{# {{ dump(post)}} #}
+	{#  La funcion dump() nos permite ver a detalle de que esta compuesta una var que estamos usando en nuestro twig, osea nos da el tipo#}
+	{# Al imprimir post nos da un array con los datos del primer post en la base, ademas de info del usuario y de las interacciones #}
+	{# las interacc estan vacias, pero si el post tuviera varias interac, las traeria, xq un post puede tener varias intera #}
+	{# {{dump(custom_post)}} #}
+
+	{# llamamos a los forms que le pasamos como param desde el ctrl #}
+	{# {{form(form)}} #}
+	{# </h1> #}
+	{# {{dump(posts)}} #}
+	{# </div> #}
+	{# *Tres sintaxis principales de twig. Este es un comentario #}
+	{# *los "{{}}" sirven para imprimir vars o usar fun #}
+	{# *los "{%%}" sirven para operaciones logicas o declarar vars #}
+	{# twig nos da tags  que son las operaciones como: do, for, if, include, etc #}
+	{# Tenemos filtros como "first" para tener el 1° elem de un array, etc #}
+	{# ej de filtro: para usarlo usamos esa notacion "|" #}
+	{# {{'hola mundo'| capitalize}} #}
+	{# <table> #}
+	{# creamos un for para acc a la var post de arriba #}
+	{# <thead> #}
+	{# <tr> #}
+	{# <td>id</td> #}
+	{# <td>titulo</td> #}
+	{# <td>description</td> #}
+	{# <td>creation date</td> #}
+	{# </tr> #}
+	{# </thead> #}
+	{# <tbody> #}
+	{# {% for post in posts %} #}
+	{# <tr> #}
+	{# <td> #}
+	{# <a href="{{path('postDetails', {id:post.id})}}"> Ver</a> #}
+	{# ponemos el name de la ruta y ponemos el id como param #}
+	{# con ~ podemos concatnear el name de lla ruta con el name del arch #}
+	{# </td> #}
+	{# <td> #}
+	{# {{post.title}} #}
+	{# </td> #}
+	{# <td> #}
+	{# {{post.description}} #}
+	{# </td> #}
+	{# <td> #}
+	{# {{post.creation_date | date}} #}
+	{# con el filtro date para convertir la fecha a str, xq la fecha es un obj del tipo DateTime y twig solo renderiza strings #}
+	{# </td> #}
+	{# </tr> #}
+	{# {{dump(post)}} #}
+	{# Con dump vemos a todos los post, no es una matriz como la var "posts" #}
+	{# {{post.title}} #}
+	{# podemos usarlo como var tmb #}
+	{# {% endfor %} #}
+	{# </tbody> #}
+	{# </table> #}
+	{# Estas oper tienen su inicion y final #}
+
+		{% block javascripts %}{{ parent() }}
+		{#    <script src="{{ asset('bundles/fosjsrouting/js/router.min.js') }}"></script>#}
+		{#    <script src="{{ path('fos_js_routing_js', { callback: 'fos.Router.setData' }) }}"></script>#}<script src="{{ asset('js/index.js') }}"> </script>
+		<script>
+			$('.custom-file-input').on('change', function (event) {
+var inputFile = event.currentTarget;
+$(inputFile).parent().find('.custom-file-label').html(inputFile.files[0].name);
+});
+		</script>
+	{% endblock %}

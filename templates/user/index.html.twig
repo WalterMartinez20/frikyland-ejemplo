@@ -1,0 +1,40 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello UserController!
+{% endblock %}
+
+{% block body %}
+	{# como estamos usando bootstrap ponemos en google "symfony form theme bootstrap 4" #}
+	{# con esto nos saldran opciones para que los elemen tengan diseños por defec #}
+	{# *aqui podemos ver como personalizar forms https://symfony.com/doc/current/form/form_customization.html #}
+	{# form_label obtiene un label y lo podemos sobrees, y el form_widget obtenemos un campo pa ubicarlo en cualquier posicion #}
+		<div class="container bg-white my-4 p-3"> <h2 class="my-3">Registrate Nerd!</h2>
+		{{form_start(registration_form)}}
+		<class="" row>
+			<div class="col-md-12 my-2">
+				{{form_label(registration_form.email, 'Correo electronico')}}
+				{{form_widget(registration_form.email,{attr:{'placeholder':'friky@example.com'}}
+				)}}
+			</div>
+			<div class="col-md-12 my-2">
+				{{form_label(registration_form.password, 'Password')}}
+				{{form_widget(registration_form.password,{attr:{'placeholder':'Ingresa tu contraseña'}}
+				)}}
+			</div>
+			<div class="col-md-12 my-2">
+				{{form_label(registration_form.photo, 'Foto')}}
+				{{form_widget(registration_form.photo)}}
+			</div>
+			<div class="col-md-12 my-2">
+				{{form_label(registration_form.description, 'Descripcion')}}
+				{{form_widget(registration_form.description,{attr:{'placeholder':'Cuentanos sobre ti'}}
+				)}}
+			</div>
+			<div class="col-md-12 my-2">
+				{{form_widget(registration_form.submit, {attr:{'class':'btn btn-success btn-block'}})}}
+			</div>
+			<a href="{{path('login')}}" class="btn btn-info btn-block my-3">Login</a>
+		</div>
+		{{form(registration_form)}}
+		</div>
+	{% endblock %}
